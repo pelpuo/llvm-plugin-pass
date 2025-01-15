@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.4.3)
-project(countirpass)
+project(customReorderPass)
 set(LLVM_EXPORTED_SYMBOL_FILE ON)
 
 find_package(LLVM REQUIRED CONFIG)

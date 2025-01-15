@@ -3,12 +3,10 @@
 
 #include "llvm/IR/PassManager.h"
 
-class CountIRPass : public llvm::PassInfoMixin<CountIRPass> {
+class CustomReorderPass : public llvm::PassInfoMixin<CustomReorderPass> {
 public:
   llvm::PreservedAnalyses run(llvm::Function &F,
                               llvm::FunctionAnalysisManager &AM);
 
-  // llvm::PreservedAnalyses run(llvm::Module &M,
-  //                             llvm::ModuleAnalysisManager &AM);
 };
 #endif
