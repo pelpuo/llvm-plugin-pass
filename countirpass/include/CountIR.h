@@ -7,5 +7,8 @@ class CountIRPass : public llvm::PassInfoMixin<CountIRPass> {
 public:
   llvm::PreservedAnalyses run(llvm::Function &F,
                               llvm::FunctionAnalysisManager &AM);
+
+  // llvm::PreservedAnalyses run(llvm::Module &M,
+  //                             llvm::ModuleAnalysisManager &AM);
 };
 #endif

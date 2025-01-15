@@ -9,6 +9,8 @@
 
 #include "./../include/CountIR.h"
 
+#include <vector>
+
 using namespace llvm;
 
 #define DEBUG_TYPE "countir"
@@ -16,79 +18,27 @@ using namespace llvm;
 // STATISTIC(NumOfInst, "Number of instructions.");
 // STATISTIC(NumOfBB, "Number of basic blocks.");
 
-// PreservedAnalyses CountIRPass::run(Function &F, FunctionAnalysisManager &AM) {
-
-//   // Collect basic blocks in a vector
-//   std::vector<BasicBlock *> BasicBlocks;
-//   for (auto &BB : F) {
-//     BasicBlocks.push_back(&BB);
-//   }
-
-//   F.deleteBody();
-
-//   LLVMContext &Context = F.getContext();
-  
-//   // for (auto *BB : llvm::reverse(BasicBlocks)) {
-//   //   BasicBlock *newBB = BasicBlock::Create(Context, "new_block", &F, &F.getEntryBlock());
-//   //   // Insert corresponding instructions from BB into newBB
-//   //   F.splice(F.end(), &F, BB->getIterator());
-//   // }
-
-//   for (int i = 0; i <BasicBlocks.size(); i++) {
-//     BasicBlock *BB = BasicBlocks[i];
-//     // BasicBlock *newBB = BasicBlock::Create(Context, "new_block", &F, &F.getEntryBlock());
-//     // Insert corresponding instructions from BB into newBB
-//     // F.splice(F.begin(), &F, BB->getIterator());
-//     F.insert(F.begin(), BB);
-// }
-//     // BasicBlock *BB = BasicBlocks[0];
-//     // F.insert(F.begin(), BB);
-//     // BasicBlock *BB2 = BasicBlocks[BasicBlocks.size()-1];
-//     // F.insert(F.end(), BB2);
-
-
-//   // Validate the function after modifying the order
-//   if (!F.empty() && &F.getEntryBlock() != BasicBlocks.back()) {
-//     llvm::errs()
-//         << "Warning: Entry block was not preserved as the first block\n";
-//   }
-
-//   return PreservedAnalyses::all(); // Indicate that we modified the IR
-// }
-
 PreservedAnalyses CountIRPass::run(Function &F, FunctionAnalysisManager &AM) {
-  // Collect basic blocks in a vector
-  std::vector<BasicBlock *> BasicBlocks;
-  for (auto &BB : F) {
-    BasicBlocks.push_back(&BB);
-  }
+    // Ensure the function has at least two basic blocks
+    if (F.size() < 2) {
+      errs() << "Function does not have enough basic blocks to swap.\n";
+      return PreservedAnalyses::all();
+    }
 
-  F.deleteBody();  // Clear the function body before modifying it
+    // Get iterators to the first two basic blocks
+    auto BBIt = F.begin();
+    &*BBIt++;
+    BasicBlock *FirstBB = &*BBIt++;
+    BasicBlock *SecondBB = &*BBIt;
 
-  LLVMContext &Context = F.getContext();
-  
-  // Rebuild the function body in the desired order
-  std::vector<BasicBlock *> ReorderedBasicBlocks;
-  
-  // Add the entry block first to preserve it at the start
-  ReorderedBasicBlocks.push_back(&F.getEntryBlock());
+    // Output the basic block names for clarity
+    errs() << "Swapping Basic Blocks: " << FirstBB->getName() << " and " << SecondBB->getName() << "\n";
 
-  // Add the other basic blocks in reverse order (skip the entry block)
-  for (int i = BasicBlocks.size() - 1; i >= 1; --i) {
-    ReorderedBasicBlocks.push_back(BasicBlocks[i]);
-  }
+    // Perform the swap by reordering basic blocks in the parent function
+    F.splice(FirstBB->getIterator(), &F, SecondBB->getIterator());
+    // F.splice(F.end(), &F, FirstBB->getIterator());
 
-  // Insert the reordered basic blocks back into the function
-  for (auto *BB : ReorderedBasicBlocks) {
-    F.insert(F.begin(), BB);
-  }
-
-  // Validate the function after modifying the order
-  if (!F.empty() && &F.getEntryBlock() != ReorderedBasicBlocks.front()) {
-    llvm::errs() << "Warning: Entry block was not preserved as the first block\n";
-  }
-
-  return PreservedAnalyses::all();  // Indicate that we modified the IR
+    return PreservedAnalyses::none();
 }
 
 // Registering pass
