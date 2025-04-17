@@ -26,6 +26,14 @@ void getOrder(std::map<std::string, int> &blockOrder);
 
 PreservedAnalyses CustomReorderPass::run(Function &F,
                                          FunctionAnalysisManager &AM) {
+
+
+  // llvm::errs() << "Running CustomReorderPass on function: " << F.getName()
+  //             << "\n";
+  // llvm::errs() << "Input file: " << FileName.getValue() << "\n"; 
+  // llvm::errs() << "Function name: " << F.getName() << "\n";
+  // llvm::errs() << "Function size: " << F.size() << "\n";
+  
   std::vector<BasicBlock *> BasicBlocks;
   std::map<std::string, int> blockOrder;
   std::map<int, int> blockReorder;
